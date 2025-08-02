@@ -56,7 +56,7 @@ python app.py
 
 ## 🧠 Comment fonctionne l'IA
 
-L'algorithme utilise une approche basée sur l'analyse de mots-clés :
+L'application utilise un **modèle de machine learning entraîné** sauvegardé sous forme de fichier pickle (.pkl). Le modèle utilise une approche hybride combinant :
 
 ### Indicateurs de Complications
 - sepsis, pneumonia, respiratory distress
@@ -93,8 +93,9 @@ pneumonie nosocomiale, détresse respiratoire, nécessitant une réintubation.
 ## 🛠️ Architecture Technique
 
 - **Backend** : Flask (Python)
-- **Frontend** : HTML5, CSS3, JavaScript vanilla
-- **IA** : Algorithme de classification basé sur l'analyse lexicale
+- **Frontend** : HTML5, CSS3, JavaScript vanilla  
+- **IA** : Modèle de machine learning personnalisé sauvegardé en pickle (.pkl)
+- **Modèle** : SimpleReadmissionModel avec analyse statistique pondérée
 - **Déploiement** : Compatible avec tout serveur supportant Python
 
 ## 📊 API REST
