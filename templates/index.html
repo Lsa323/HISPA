@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prédiction de Réadmission - IA Médicale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result.low-risk {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            border: 3px solid #27ae60;
+        }
+
+        .result.medium-risk {
+            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+            color: #2c3e50;
+            border: 3px solid #f39c12;
+        }
+
+        .result.high-risk {
+            background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%);
+            color: white;
+            border: 3px solid #c0392b;
+        }
+
+        .result h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .result .details {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.95em;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .example-texts {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .example-texts h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .example-btn {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            color: #2c3e50;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #d5dbdb;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            textarea {
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Prédiction de Réadmission</h1>
+            <p>Système d'intelligence artificielle pour l'analyse du risque de réadmission médicale basé sur le texte clinique</p>
+        </div>
+
+        <div class="example-texts">
+            <h4>💡 Exemples de textes cliniques :</h4>
+            <button class="example-btn" onclick="setExampleText('stable')">Patient stable, pas de complications</button>
+            <button class="example-btn" onclick="setExampleText('complications')">Signes de sepsis et pneumonie</button>
+            <button class="example-btn" onclick="setExampleText('mixed')">Patient stable mais avec légère fièvre</button>
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="clinicalText">Texte clinique à analyser :</label>
+                <textarea 
+                    id="clinicalText" 
+                    name="text" 
+                    placeholder="Entrez ici le texte clinique du patient (diagnostic, évolution clinique, investigations, chirurgie, problèmes, plan de sortie, médication, etc.)..."
+                    required></textarea>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">
+                🔍 Analyser le Risque de Réadmission
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyse en cours...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3 id="resultTitle"></h3>
+            <p id="resultText"></p>
+            <div class="details" id="resultDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const clinicalText = document.getElementById('clinicalText');
+
+        function setExampleText(type) {
+            const examples = {
+                'stable': 'Patient stable, cicatrisation normale, pas de signes d\'infection, tolère bien l\'alimentation, mobilisation satisfaisante, paramètres vitaux normaux.',
+                'complications': 'Patient présentant des signes de sepsis avec fièvre persistante, pneumonie nosocomiale, détresse respiratoire, nécessitant une réintubation.',
+                'mixed': 'Patient généralement stable, cicatrisation en cours, légère fièvre intermittente sous surveillance, mobilisation progressive, douleur contrôlée.'
+            };
+            clinicalText.value = examples[type];
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = clinicalText.value.trim();
+            if (!text) {
+                alert('Veuillez entrer un texte clinique à analyser.');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Analyse en cours...';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResult(data.result);
+                } else {
+                    throw new Error(data.error || 'Erreur lors de l\'analyse');
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔍 Analyser le Risque de Réadmission';
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResult(data) {
+            const resultTitle = document.getElementById('resultTitle');
+            const resultText = document.getElementById('resultText');
+            const resultDetails = document.getElementById('resultDetails');
+
+            // Remove existing classes
+            result.className = 'result';
+
+            // Add appropriate class based on risk level
+            if (data.risk_level === 0) {
+                result.classList.add('low-risk');
+                resultTitle.textContent = '✅ Risque Faible de Réadmission';
+            } else if (data.risk_level === 1) {
+                result.classList.add('medium-risk');
+                resultTitle.textContent = '⚠️ Risque Moyen de Réadmission';
+            } else {
+                result.classList.add('high-risk');
+                resultTitle.textContent = '🚨 Risque Élevé de Réadmission';
+            }
+
+            resultText.textContent = data.explanation;
+            
+            const probability = (data.probability * 100).toFixed(1);
+            resultDetails.innerHTML = `
+                <strong>Détails de l'analyse :</strong><br>
+                📊 Probabilité: ${probability}%<br>
+                🔴 Indicateurs de complications: ${data.complication_count}<br>
+                🟢 Indicateurs de stabilité: ${data.stability_count}
+            `;
+
+            result.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
